@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Blockly + Arduino via Socket.io</title>
+  <script src="/blockly/blockly_compressed.js"></script>
+  <script src="/blockly/blocks_compressed.js"></script>
+  <script src="/blockly/javascript_compressed.js"></script>
+  <script src="/blockly/msg/js/pt.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    body { display: flex; font-family: sans-serif; }
+    #blocklyDiv { height: 480px; width: 600px; }
+    #buttons { margin-left: 20px; }
+  </style>
+</head>
+<body>
+
+  <div id="blocklyDiv"></div>
+  <div id="buttons">
+    <button onclick="runCode()">Executar</button>
+  </div>
+
+  <xml id="toolbox" style="display: none">
+    <category name="Controle" colour="210">
+      <block type="ligar_led"></block>
+      <block type="desligar_led"></block>
+    </category>
+    <category name="Lógica" colour="#5C81A6">
+      <block type="controls_if"></block>
+      <block type="logic_compare"></block>
+      <block type="logic_boolean"></block>
+    </category>
+  </xml>
+
+  <script>
+    const socket = io();
+
+    // Define seus blocos personalizados
+    Blockly.defineBlocksWithJsonArray([
+      {
+        type: "ligar_led",
+        message0: "Ligar LED",
+        previousStatement: null,
+        nextStatement: null,
+        colour: 120,
+        tooltip: "Liga o LED no pino 13",
+      },
+      {
+        type: "desligar_led",
+        message0: "Desligar LED",
+        previousStatement: null,
+        nextStatement: null,
+        colour: 0,
+        tooltip: "Desliga o LED no pino 13",
+      }
+    ]);
+
+    // Geração de código JavaScript para os blocos
+    Blockly.JavaScript['ligar_led'] = function(block) {
+      return 'socket.emit("ligar_led");\n';
+    };
+    Blockly.JavaScript['desligar_led'] = function(block) {
+      return 'socket.emit("desligar_led");\n';
+    };
+
+    // Injeta o Blockly no div
+    const workspace = Blockly.inject('blocklyDiv', {
+      toolbox: document.getElementById('toolbox'),
+      scrollbars: true,
+      trashcan: true
+    });
+
+    // Função para gerar o código e executar (enviar via socket)
+    function runCode() {
+      const code = Blockly.JavaScript.workspaceToCode(workspace);
+      try {
+        eval(code);  // executa os comandos que disparam socket.emit()
+      } catch (e) {
+        alert('Erro no código: ' + e);
+      }
+    }
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Blockly com LED</title>
+  <script src="blockly/blockly_compressed.js"></script>
+  <script src="blockly/blocks_compressed.js"></script>
+  <script src="blockly/javascript_compressed.js"></script>
+  <script src="blockly/msg/js/pt.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    html, body { height: 100%; margin: 0; }
+    #blocklyDiv { height: 100%; width: 80%; float: left; }
+    #buttons { width: 20%; float: left; padding: 20px; }
+  </style>
+</head>
+<body>
+  <div id="blocklyDiv"></div>
+  <div id="buttons">
+    <button onclick="runCode()">Executar</button>
+  </div>
+
+  <xml id="toolbox" style="display: none">
+    <category name="Lógica" colour="#5C81A6">
+      <block type="controls_if"></block>
+      <block type="logic_boolean"></block>
+    </category>
+  </xml>
+
+  <script>
+    const socket = io();
+
+    const workspace = Blockly.inject('blocklyDiv', {
+      toolbox: document.getElementById('toolbox'),
+      trashcan: true
+    });
+
+    function runCode() {
+      const code = Blockly.JavaScript.workspaceToCode(workspace);
+      console.log('Código gerado:', code);
+
+      if (code.includes('if')) {
+        socket.emit('ligar_led');
+      } else {
+        alert('Adicione um bloco de lógica "se" para testar.');
+      }
+    }
+  </script>
+</body>
+</html>
+

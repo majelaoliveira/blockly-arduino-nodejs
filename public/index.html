@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Blockly com Blocos Nativos</title>
+  <script src="blockly/blockly_compressed.js"></script>
+  <script src="blockly/blocks_compressed.js"></script>
+  <script src="blockly/javascript_compressed.js"></script>
+  <script src="blockly/msg/js/pt.js"></script>
+  <style>
+    html, body { height: 100%; margin: 0; padding: 0; display: flex; }
+    #blocklyDiv { height: 100vh; width: 70vw; }
+    #buttons { padding: 10px; width: 30vw; background: #f0f0f0; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); }
+    textarea { width: 100%; height: 60vh; }
+    button { margin-top: 10px; padding: 10px; width: 100%; font-size: 16px; }
+  </style>
+</head>
+<body>
+
+  <div id="blocklyDiv"></div>
+
+  <div id="buttons">
+    <button onclick="gerarCodigo()">Gerar Código JavaScript</button>
+    <textarea id="codigoGerado" readonly></textarea>
+  </div>
+
+  <xml id="toolbox" style="display: none">
+    <category name="Lógica" colour="#5C81A6">
+      <block type="controls_if"></block>
+      <block type="logic_compare"></block>
+      <block type="logic_operation"></block>
+      <block type="logic_negate"></block>
+      <block type="logic_boolean"></block>
+      <block type="logic_null"></block>
+      <block type="logic_ternary"></block>
+    </category>
+
+    <category name="Laços" colour="#5CA65C">
+      <block type="controls_repeat_ext">
+        <value name="TIMES"><shadow type="math_number"><field name="NUM">10</field></shadow></value>
+      </block>
+      <block type="controls_whileUntil"></block>
+      <block type="controls_for"></block>
+      <block type="controls_forEach"></block>
+      <block type="controls_flow_statements"></block>
+    </category>
+
+    <category name="Matemática" colour="#5C68A6">
+      <block type="math_number"></block>
+      <block type="math_arithmetic"></block>
+      <block type="math_single"></block>
+      <block type="math_trig"></block>
+      <block type="math_constant"></block>
+      <block type="math_number_property"></block>
+      <block type="math_round"></block>
+      <block type="math_on_list"></block>
+      <block type="math_modulo"></block>
+      <block type="math_constrain"></block>
+      <block type="math_random_int"></block>
+      <block type="math_random_float"></block>
+    </category>
+
+    <category name="Texto" colour="#5CA68D">
+      <block type="text"></block>
+      <block type="text_join"></block>
+      <block type="text_append"></block>
+      <block type="text_length"></block>
+      <block type="text_isEmpty"></block>
+      <block type="text_indexOf"></block>
+      <block type="text_charAt"></block>
+      <block type="text_getSubstring"></block>
+      <block type="text_changeCase"></block>
+      <block type="text_trim"></block>
+      <block type="text_print"></block>
+      <block type="text_prompt_ext"></block>
+    </category>
+
+    <category name="Listas" colour="#745CA6">
+      <block type="lists_create_with"></block>
+      <block type="lists_repeat"></block>
+      <block type="lists_length"></block>
+      <block type="lists_isEmpty"></block>
+      <block type="lists_indexOf"></block>
+      <block type="lists_getIndex"></block>
+      <block type="lists_setIndex"></block>
+      <block type="lists_getSublist"></block>
+      <block type="lists_split"></block>
+      <block type="lists_sort"></block>
+    </category>
+
+    <category name="Funções" custom="PROCEDURE" colour="#995BA5"></category>
+    <category name="Variáveis" custom="VARIABLE" colour="#A65C81"></category>
+  </xml>
+
+  <script>
+    const workspace = Blockly.inject('blocklyDiv', {
+      toolbox: document.getElementById('toolbox'),
+      scrollbars: true,
+      trashcan: true
+    });
+
+    function gerarCodigo() {
+      const codigo = Blockly.JavaScript.workspaceToCode(workspace);
+      document.getElementById('codigoGerado').value = codigo;
+      try {
+        eval(codigo); // cuidado: isso executa o código gerado
+      } catch (e) {
+        alert("Erro ao executar o código:\n" + e);
+      }
+    }
+  </script>
+</body>
+</html>
+

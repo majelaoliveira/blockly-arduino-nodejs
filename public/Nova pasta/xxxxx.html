@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Controle do LED e Sensor Arduino</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    button { margin-right: 10px; padding: 10px 20px; font-size: 16px; }
+    #status { margin-top: 10px; font-weight: bold; }
+    #sensorValue { font-weight: bold; }
+    h1, h2 { color: #333; }
+  </style>
+</head>
+<body>
+  <h1>Controle do LED do Arduino</h1>
+
+  <button id="btnLigado">Ligar LED</button>
+  <button id="btnDesligado">Desligar LED</button>
+
+  <div id="status">Status do LED: --</div>
+
+  <h2>Leitura do sensor analógico A0</h2>
+  <div>Valor atual do sensor: <span id="sensorValue">0</span></div>
+  <canvas id="sensorChart" width="600" height="300"></canvas>
+
+  <script>
+    const socket = io();
+
+    // Controle do LED
+    document.getElementById('btnLigado').onclick = () => {
+      socket.emit('ligar_led');
+    };
+
+    document.getElementById('btnDesligado').onclick = () => {
+      socket.emit('desligar_led');
+    };
+
+    socket.on('status_led', (data) => {
+      document.getElementById('status').innerText = 'Status do LED: ' + data.estado;
+    });
+
+    // Configuração do gráfico Chart.js
+    const ctx = document.getElementById('sensorChart').getContext('2d');
+
+    const sensorChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Valor do sensor',
+          data: [],
+          borderColor: 'rgb(75, 192, 192)',
+          fill: false,
+          tension: 0.1
+        }]
+      },
+      options: {
+        animation: false,
+        scales: {
+          x: {
+            title: { display: true, text: 'Leitura' }
+          },
+          y: {
+            min: 0,
+            max: 1023,
+            title: { display: true, text: 'Valor (0-1023)' }
+          }
+        }
+      }
+    });
+
+    let leituraCount = 0;
+
+    // Atualiza gráfico e valor do sensor conforme chegam dados
+    socket.on('sensor_data', (valor) => {
+      if (sensorChart.data.labels.length > 50) {
+        sensorChart.data.labels.shift();
+        sensorChart.data.datasets[0].data.shift();
+      }
+      sensorChart.data.labels.push(++leituraCount);
+      sensorChart.data.datasets[0].data.push(valor);
+      sensorChart.update();
+
+      document.getElementById('sensorValue').innerText = valor;
+    });
+
+    socket.on('connect', () => {
+      console.log('Conectado ao servidor!');
+    });
+  </script>
+</body>
+</html>
+
